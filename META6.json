@@ -1,0 +1,31 @@
+{
+  "auth": "zef:coke",
+  "authors": [
+    "coke"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "Utility methods for determining which files to test",
+  "license": "Artistic-2.0",
+  "meta6": "0",
+  "name": "RakuDoc::Test::Files",
+  "provides": {
+    "RakuDoc::Test::Files": "lib/RakuDoc/Test/Files.rakumod"
+  },
+  "raku": "6.*",
+  "resources": [
+  ],
+  "source-url": "https://github.com/coke/RakuDoc-test-files.git",
+  "support": {
+    "source": "git://github.com/cokeRakuDoc-test-files.git"
+  },
+  "tags": [
+    "raku",
+    "documentation"
+  ],
+  "test-depends": [
+  ],
+  "version": "0.1"
+}

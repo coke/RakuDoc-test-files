@@ -1,0 +1,77 @@
+#!/usr/bin/env raku
+
+use Test;
+
+plan 27;
+use-ok 'RakuDoc::Test::Files';
+
+use RakuDoc::Test::Files;
+
+my $helper = 't/01-methods-helper.raku';
+
+# all-files
+%*ENV<TEST_FILES>:delete; 
+is run-test(), 'True', 'all files';
+is run-test('some-file'), 'False', 'using @ARGS';
+%*ENV<TEST_FILES>='some-file';
+is run-test(), 'False', 'using ENV';
+
+# Reset
+%*ENV<TEST_FILES>:delete; 
+
+# files
+my @result = RakuDoc::Test::Files.files;
+ok @result.elems >= 10, '.files returns something array-like with at least one item';
+ok all(@result.map(*.IO.f)), 'all files returned exist';
+
+# pods
+@result = RakuDoc::Test::Files.pods;
+ok @result.elems >= 1, '.pods returns something array-like with at least one item';
+ok all(@result>>.ends-with('.rakudoc')), 'all files returned are rakudoc files';
+ok all(@result.map(*.IO.f)), 'all files returned exist';
+
+# documents
+@result = RakuDoc::Test::Files.documents;
+ok @result.elems >= 1, '.documents returns something array-like with at least one item';
+ok all(@result>>.ends-with('.rakudoc'|'.md')), 'all files returned are rakudoc or markdown files';
+ok all(@result.map(*.IO.f)), 'all files returned exist';
+
+# tests
+@result = RakuDoc::Test::Files.tests;
+ok @result.elems >= 1, '.tests returns something array-like with at least one item';
+ok all(@result>>.ends-with('.rakutest')), 'all files returned are rakutest files';
+ok all(@result.map(*.IO.f)), 'all files returned exist';
+
+%*ENV<TEST_FILES>="this-file-does-not-exist t/01-methods.rakutest";
+is RakuDoc::Test::Files.files, 't/01-methods.rakutest', 'TEST_FILES 1 skip missing files, keep existing';
+is RakuDoc::Test::Files.pods, '', 'TEST_FILES 1 skip missing files, bad type';
+is RakuDoc::Test::Files.documents, '', 'TEST_FILES 1 skip missing files, bad type';
+is RakuDoc::Test::Files.tests, 't/01-methods.rakutest', 'TEST_FILES 1 skip missing files, keep existing type match';
+
+%*ENV<TEST_FILES>='this-file-does-not-exist README.md';
+is RakuDoc::Test::Files.files, 'README.md', 'TEST_FILES 2 skip missing files, keep existing';
+is RakuDoc::Test::Files.pods, '', 'TEST_FILES 2 skip missing files, bad type';
+is RakuDoc::Test::Files.documents, 'README.md', 'TEST_FILES 2 skip missing files, keep existing type match';
+is RakuDoc::Test::Files.tests, '', 'TEST_FILES 2 skip missing files, bad type';
+
+
+%*ENV<TEST_FILES>='this-file-does-not-exist sample/test.rakudoc';
+is RakuDoc::Test::Files.files, 'sample/test.rakudoc', 'TEST_FILES 3 skip missing files, keep existing';
+is RakuDoc::Test::Files.pods, 'sample/test.rakudoc', 'TEST_FILES 3 skip missing files, keep existing type match';
+is RakuDoc::Test::Files.documents, 'sample/test.rakudoc', 'TEST_FILES 3 skip missing files, keep existing type match';
+is RakuDoc::Test::Files.tests, '', 'TEST_FILES 3 skip missing files, bad type';
+
+sub run-test($file=Nil) {
+    my @args = $*EXECUTABLE;
+    for Rakudo::Internals.INCLUDE {
+        @args.push: '-I';
+        @args.push: $_;
+    }
+    @args.push: $helper;
+    @args.push: $file if $file.DEFINITE ;
+    run(@args, :out).out.slurp(:close).chomp;
+}
+
+sub run-test-arg($file) {
+    run($helper, $file, :out).out.slurp(:close).chomp;
+}
