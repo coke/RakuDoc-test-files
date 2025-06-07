@@ -1,4 +1,6 @@
 Revision history for RakuDoc::Test::Files
 
 {{$NEXT}}
+
+0.2  2025-06-07T20:54:23+02:00
     - initial release, extracting from Raku/doc
