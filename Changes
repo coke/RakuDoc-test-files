@@ -2,5 +2,8 @@ Revision history for RakuDoc::Test::Files
 
 {{$NEXT}}
 
+0.3  2025-06-07T21:29:22+02:00
+    - Fix tests when run in zef
+
 0.2  2025-06-07T20:54:23+02:00
     - initial release, extracting from Raku/doc
