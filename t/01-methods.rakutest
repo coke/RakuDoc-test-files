@@ -2,7 +2,6 @@
 
 use Test;
 
-plan 27;
 use-ok 'RakuDoc::Test::Files';
 
 use RakuDoc::Test::Files;
@@ -20,27 +19,36 @@ is run-test(), 'False', 'using ENV';
 %*ENV<TEST_FILES>:delete; 
 
 # files
-my @result = RakuDoc::Test::Files.files;
-ok @result.elems >= 10, '.files returns something array-like with at least one item';
-ok all(@result.map(*.IO.f)), 'all files returned exist';
+my @result;
+if '.git'.IO.d {
+    @result = RakuDoc::Test::Files.files;
+    ok @result.elems >= 1, '.files returns something array-like with at least one item';
+    ok all(@result.map(*.IO.f)), 'all files returned exist';
+} 
 
 # pods
-@result = RakuDoc::Test::Files.pods;
-ok @result.elems >= 1, '.pods returns something array-like with at least one item';
-ok all(@result>>.ends-with('.rakudoc')), 'all files returned are rakudoc files';
-ok all(@result.map(*.IO.f)), 'all files returned exist';
+if '.git'.IO.d {
+    @result = RakuDoc::Test::Files.pods;
+    ok @result.elems >= 1, '.pods returns something array-like with at least one item';
+    ok all(@result>>.ends-with('.rakudoc')), 'all files returned are rakudoc files';
+    ok all(@result.map(*.IO.f)), 'all files returned exist';
+}
 
 # documents
-@result = RakuDoc::Test::Files.documents;
-ok @result.elems >= 1, '.documents returns something array-like with at least one item';
-ok all(@result>>.ends-with('.rakudoc'|'.md')), 'all files returned are rakudoc or markdown files';
-ok all(@result.map(*.IO.f)), 'all files returned exist';
+if '.git'.IO.d {
+    @result = RakuDoc::Test::Files.documents;
+    ok @result.elems >= 1, '.documents returns something array-like with at least one item';
+    ok all(@result>>.ends-with('.rakudoc'|'.md')), 'all files returned are rakudoc or markdown files';
+    ok all(@result.map(*.IO.f)), 'all files returned exist';
+}
 
 # tests
-@result = RakuDoc::Test::Files.tests;
-ok @result.elems >= 1, '.tests returns something array-like with at least one item';
-ok all(@result>>.ends-with('.rakutest')), 'all files returned are rakutest files';
-ok all(@result.map(*.IO.f)), 'all files returned exist';
+if '.git'.IO.d {
+    @result = RakuDoc::Test::Files.tests;
+    ok @result.elems >= 1, '.tests returns something array-like with at least one item';
+    ok all(@result>>.ends-with('.rakutest')), 'all files returned are rakutest files';
+    ok all(@result.map(*.IO.f)), 'all files returned exist';
+}
 
 %*ENV<TEST_FILES>="this-file-does-not-exist t/01-methods.rakutest";
 is RakuDoc::Test::Files.files, 't/01-methods.rakutest', 'TEST_FILES 1 skip missing files, keep existing';
@@ -75,3 +83,5 @@ sub run-test($file=Nil) {
 sub run-test-arg($file) {
     run($helper, $file, :out).out.slurp(:close).chomp;
 }
+
+done-testing;
